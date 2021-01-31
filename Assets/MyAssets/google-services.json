@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "214651006113",
+    "project_id": "fir-template-6bf96",
+    "storage_bucket": "fir-template-6bf96.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:214651006113:android:6ac3ffa8467cbfc9add4e0",
+        "android_client_info": {
+          "package_name": "com.GamerBoxStudios.FirebaseTemplate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "214651006113-j0henu8819lod7gppjo0tio16fsne9ju.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv0iyrRueRW_MiV25vY92fFzhAj5dP0fo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "214651006113-j0henu8819lod7gppjo0tio16fsne9ju.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
