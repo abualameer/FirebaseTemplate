@@ -9,11 +9,11 @@ public class LoginScreenUI : MonoBehaviour
     public TMP_InputField email;
     public TMP_InputField password;
     public UITransition container;
-    public UITransition chooseMallScreen;
-
+    private LoginType loginType;
     private void Awake()
     {
         Instance = this;
+        loginType = (LoginType) PlayerPrefs.GetInt(Constants.LOGIN_TYPE_PREFS, 0);
     }
     private void Start()
     {
@@ -21,24 +21,36 @@ public class LoginScreenUI : MonoBehaviour
     }
     public void TryAutoLogin()
     {
-        if(AuthManager.Instance.User == null || string.IsNullOrEmpty(AuthManager.Instance.User.Email))
+        if(true)//AuthManager.Instance.User == null)
         {
-            email.text = PlayerPrefs.GetString(Constants.EMAIL_PREFS, "");
-            password.text = PlayerPrefs.GetString(Constants.PASSWORD_PREFS, "");
-            if (!string.IsNullOrEmpty(email.text))
+            switch (loginType)
             {
-                Login();
+                case LoginType.basic:
+                    email.text = PlayerPrefs.GetString(Constants.EMAIL_PREFS, "");
+                    password.text = PlayerPrefs.GetString(Constants.PASSWORD_PREFS, "");
+                    if (!string.IsNullOrEmpty(email.text))
+                    {
+                        Login();
+                    }
+                    else
+                    {
+                        LoadingScreen.Instance.Hide();
+                    }
+                    break;
+                case LoginType.facebook:
+                    LoadingScreen.Instance.Hide();
+                    break;
+                default:
+                    LoadingScreen.Instance.Hide();
+                    break;
             }
-            else
-            {
-                LoadingScreen.Instance.Hide();
-            }
+            
         }
         else
         {
             AfterLogin();
         }
-        
+
     }
     public void Login()
     {
@@ -49,8 +61,17 @@ public class LoginScreenUI : MonoBehaviour
         }
         StartCoroutine(AuthManager.Instance.Login(email.text, password.text));
     }
+    public void LoginWithFacebook()
+    {
+        StartCoroutine(AuthManager.Instance.LoginWithFacebook());
+    }
     public void AfterLogin()
     {
-        LoadingScreen.Instance.Show("Loading Game...",SceneManager.LoadSceneAsync(1),true);
+        LoadingScreen.Instance.Show("Loading Game...", SceneManager.LoadSceneAsync(1),true);
     }
+}
+enum LoginType
+{
+    basic = 0,
+    facebook = 1
 }

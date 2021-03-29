@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources tools:keep="@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id,@string/default_web_client_id" xmlns:tools="http://schemas.android.com/tools">
-  <string name="gcm_defaultSenderId" translatable="false">214651006113</string>
-  <string name="google_storage_bucket" translatable="false">fir-template-6bf96.appspot.com</string>
-  <string name="project_id" translatable="false">fir-template-6bf96</string>
-  <string name="google_api_key" translatable="false">AIzaSyCv0iyrRueRW_MiV25vY92fFzhAj5dP0fo</string>
-  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCv0iyrRueRW_MiV25vY92fFzhAj5dP0fo</string>
-  <string name="google_app_id" translatable="false">1:214651006113:android:6ac3ffa8467cbfc9add4e0</string>
-  <string name="default_web_client_id" translatable="false">214651006113-j0henu8819lod7gppjo0tio16fsne9ju.apps.googleusercontent.com</string>
+  <string name="gcm_defaultSenderId" translatable="false">149298404539</string>
+  <string name="google_storage_bucket" translatable="false">logintemplate-192be.appspot.com</string>
+  <string name="project_id" translatable="false">logintemplate-192be</string>
+  <string name="google_api_key" translatable="false">AIzaSyBS2tmRuMMx-LWHi0An4mZRCiwxgGBp_gU</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBS2tmRuMMx-LWHi0An4mZRCiwxgGBp_gU</string>
+  <string name="google_app_id" translatable="false">1:149298404539:android:5f050f068d23e2c60c9d9e</string>
+  <string name="default_web_client_id" translatable="false">149298404539-7p63s3uu92lt0a7pi3m0g9bsvss2mdcf.apps.googleusercontent.com</string>
 </resources>

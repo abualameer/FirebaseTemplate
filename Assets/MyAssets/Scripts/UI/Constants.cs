@@ -6,6 +6,7 @@ public class Constants : MonoBehaviour
     public const string EMAIL_PREFS = "Email";
     public const string PASSWORD_PREFS = "Password";
     public const string GRAPHICS_LEVEL_PREFS = "Graphics";
+    public const string LOGIN_TYPE_PREFS = "LoginType";
     #endregion
     public static Constants Instance;
     void Awake()

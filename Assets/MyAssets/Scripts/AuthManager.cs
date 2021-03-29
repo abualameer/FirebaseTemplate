@@ -2,6 +2,8 @@
 using UnityEngine;
 using Firebase;
 using Firebase.Auth;
+using Facebook.Unity;
+using System.Collections.Generic;
 
 public class AuthManager : MonoBehaviour
 {
@@ -15,13 +17,11 @@ public class AuthManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        //Check that all of the necessary dependencies for Firebase are present on the system
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             dependencyStatus = task.Result;
             if (dependencyStatus == DependencyStatus.Available)
             {
-                //If they are avalible Initialize Firebase
                 InitializeFirebase();
             }
             else
@@ -29,30 +29,35 @@ public class AuthManager : MonoBehaviour
                 Debug.LogError("Could not resolve all Firebase dependencies: " + dependencyStatus);
             }
         });
+        if (!FB.IsInitialized)
+            FB.Init(InitCallback, null);
+        else
+            FB.ActivateApp();
     }
-
+    private void InitCallback()
+    {
+        if (FB.IsInitialized)
+            FB.ActivateApp();
+        else
+            Debug.Log("Failed to Initialize the Facebook SDK");
+    }
     private void InitializeFirebase()
     {
         Debug.Log("Setting up Firebase Auth");
-        //Set the authentication instance object
         auth = FirebaseAuth.DefaultInstance;
     }
     public IEnumerator Login(string _email, string _password)
     {
         LoadingScreen.Instance.Show("Loging in...");
-        //Call the Firebase auth signin function passing the email and password
         yield return new WaitUntil(() => auth != null);
         var LoginTask = auth.SignInWithEmailAndPasswordAsync(_email, _password);
-        //Wait until the task completes
         yield return new WaitUntil(predicate: () => LoginTask.IsCompleted);
         LoadingScreen.Instance.Hide();
         if (LoginTask.Exception != null)
         {
-            //If there are errors handle them
-            Debug.LogWarning(message: $"Failed to register task with {LoginTask.Exception}");
+            Debug.LogError(LoginTask.Exception);
             FirebaseException firebaseEx = LoginTask.Exception.GetBaseException() as FirebaseException;
             AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
-
             string message = "Login Failed!";
             switch (errorCode)
             {
@@ -77,6 +82,7 @@ public class AuthManager : MonoBehaviour
         else
         {
             User = LoginTask.Result;
+            PlayerPrefs.SetInt(Constants.LOGIN_TYPE_PREFS, 0);
             PlayerPrefs.SetString(Constants.EMAIL_PREFS, _email);
             PlayerPrefs.SetString(Constants.PASSWORD_PREFS, _password);
             ILogger.Instance.ShowMessage("Logged in...", LoggerType.info);
@@ -119,16 +125,11 @@ public class AuthManager : MonoBehaviour
             User = RegisterTask.Result;
             if (User != null)
             {
-                //Create a user profile and set the username
                 UserProfile profile = new UserProfile { DisplayName = _displayName };
-
-                //Call the Firebase auth update user profile function passing the profile with the username
                 var ProfileTask = User.UpdateUserProfileAsync(profile);
-                //Wait until the task completes
                 yield return new WaitUntil(predicate: () => ProfileTask.IsCompleted);
                 if (ProfileTask.Exception != null)
                 {
-                    //If there are errors handle them
                     Debug.LogWarning(message: $"Failed to register task with {ProfileTask.Exception}");
                     FirebaseException firebaseEx = ProfileTask.Exception.GetBaseException() as FirebaseException;
                     AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
@@ -142,6 +143,60 @@ public class AuthManager : MonoBehaviour
                 }
             }
         }
-        
+    }
+    public URLRawImage img;
+    public IEnumerator LoginWithFacebook()
+    {
+        auth.SignOut();
+        LoadingScreen.Instance.Show("Siging in with Facebook...");
+        yield return new WaitUntil(() => FB.IsInitialized);
+        string accessToken = "";
+        List<string> permissions = new List<string>();
+        permissions.Add("public_profile");
+        permissions.Add("email");
+        FB.LogInWithReadPermissions(permissions, delegate (ILoginResult result)
+        {
+            if (!string.IsNullOrEmpty(result.Error) || !FB.IsLoggedIn)
+            {
+                ILogger.Instance.ShowMessage("Failed to login in with facebook", LoggerType.error);
+                LoadingScreen.Instance.Hide();
+                Debug.LogError(result.Error);
+                return;
+            }
+
+            accessToken = AccessToken.CurrentAccessToken.TokenString;
+            Debug.Log(accessToken);
+            FB.API("me?fields=first_name", HttpMethod.GET, delegate (IGraphResult res)
+            {
+                if (res.Error == null)
+                {
+                    Debug.Log(res.ResultDictionary["first_name"] + ": " + AccessToken.CurrentAccessToken.UserId + "\nExpires in: " + AccessToken.CurrentAccessToken.ExpirationTime);
+                }
+            });
+            Credential credential = FacebookAuthProvider.GetCredential(accessToken);
+            auth.SignInWithCredentialAsync(credential).ContinueWith(task =>
+            {
+                LoadingScreen.Instance.Hide();
+                if (task.IsCanceled)
+                {
+                    Debug.LogError("SignInWithCredentialAsync was canceled.");
+                    return;
+                }
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("SignInWithCredentialAsync encountered an error: " + task.Exception);
+                    return;
+                }
+                User = task.Result;
+                if (User != null)
+                {
+                    string name = User.DisplayName;
+                    string email = User.Email;
+                    System.Uri photo_url = User.PhotoUrl;
+                    Debug.Log(name + ": " + email + ": " + photo_url);
+                    LoginScreenUI.Instance.AfterLogin();
+                }
+            });
+        });
     }
 }
